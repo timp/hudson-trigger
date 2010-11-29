@@ -34,4 +34,12 @@ public class TriggerTestCase extends JettyWebTestCase {
     assertTextPresent("Triggered");
     assertTextPresent("200");
   }
+  public void testPostUnknown() { 
+    beginAt("/Trigger?token=unknown");
+    assertTextPresent("Trigger");
+    submit();
+    assertTextPresent("Triggered");
+    assertTextPresent("0");
+    assertTextPresent("No build targets found");
+  }
 }
