@@ -28,7 +28,7 @@ public class TriggerTestCase extends JettyWebTestCase {
   }
   
   public void testPost() { 
-    beginAt("/Trigger?token=DO5TiHT2E7yLueGN");
+    beginAt("/Trigger?token=rof_G6T8S_bWbAGM");
     assertTextPresent("Trigger");
     submit();
     assertTextPresent("Triggered");
