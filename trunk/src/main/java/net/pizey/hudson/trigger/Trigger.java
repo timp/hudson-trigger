@@ -83,10 +83,14 @@ public class Trigger extends HttpServlet {
       PrintWriter out = resp.getWriter();
       ArrayList<String> urls = tokenUrls.get(token);
       String bodyHtml = "<table>";
-      for (String url : urls) {
-        url = appendToken(url, token);
-        int responseStatus = makePostRequest(url);
-        bodyHtml += "<tr><td>" + responseStatus + "</td><td>" + url + "</td></tr>";
+      if (urls == null)
+        bodyHtml += "<tr><td>0</td><td>No build targets found</td></tr>";
+      else {
+        for (String url : urls) {
+          url = appendToken(url, token);
+          int responseStatus = makePostRequest(url);
+          bodyHtml += "<tr><td>" + responseStatus + "</td><td>" + url + "</td></tr>";
+        }
       }
       bodyHtml += "</table>";
       printAsPage(out, "Triggered", bodyHtml);
