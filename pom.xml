@@ -8,6 +8,23 @@
   <name>Hudson Trigger</name>
   <description>Build with mvn install -Plive -Duser=foo -passord=bar </description>
   <url>http://maven.apache.org</url>
+  <repositories>
+   <repository>
+     <id>pe</id>
+     <name>PanEris Maven Repository</name>
+     <url>http://paneris.net/maven2/</url>
+   </repository>
+	 </repositories>
+  <distributionManagement>
+    <repository>
+      <id>pe</id>
+      <url>scp://paneris.net/var/www/maven2</url>
+    </repository>
+    <snapshotRepository>
+      <id>pe</id>
+      <url>scp://paneris.net/var/www/maven2</url>
+    </snapshotRepository>
+  </distributionManagement>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
