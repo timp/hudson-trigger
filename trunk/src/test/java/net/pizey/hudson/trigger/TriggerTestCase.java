@@ -32,7 +32,7 @@ public class TriggerTestCase extends JettyWebTestCase {
     assertTextPresent("Trigger");
     submit();
     assertTextPresent("Triggered");
-    assertTextPresent("401");
+    assertTextPresent("200");
   }
   public void testPostUnknown() { 
     beginAt("/Trigger?token=unknown");
