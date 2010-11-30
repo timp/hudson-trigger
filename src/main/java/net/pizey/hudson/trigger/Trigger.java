@@ -98,7 +98,6 @@ public class Trigger extends HttpServlet {
     } catch(Exception e){
       throw new ServletException(e);
     }
-    
   }
 
   private String appendToken(String url, String token) {
