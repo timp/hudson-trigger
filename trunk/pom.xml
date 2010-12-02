@@ -86,9 +86,9 @@
   <build>
     <finalName>trigger</finalName>
     <resources>
-    <resource>
-     <directory>src/main/filtered/</directory>
-     <filtering>true</filtering>
+     <resource>
+      <directory>src/main/filtered/</directory>
+      <filtering>true</filtering>
      </resource>
     </resources>
     <plugins>
