@@ -21,6 +21,14 @@ public class TriggerTestCase extends JettyWebTestCase {
   protected void tearDown() throws Exception {
     super.tearDown();
   }
+  /**
+   * If you don't know by now.
+   * @param args
+   * @throws Exception
+   */
+  public static void main(String[] args) throws Exception {
+    actualPort = startServer(8080);
+  }
 
   public void testGet() {
     beginAt("/Trigger");
