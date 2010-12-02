@@ -107,14 +107,16 @@ public class Trigger extends HttpServlet {
 
   private void printAsPage(PrintWriter out, String title, String bodyHtml) {
     out.println("<html>");
-    out.println("<head>");
+    out.println(" <head>");
+    out.println("  <title>");
     out.println(title);
-    out.println("</head>");
-    out.println("<body>");
+    out.println("  </title>");
+    out.println(" </head>");
+    out.println(" <body>");
     out.println("<h1>" + title + "</h1>");
     
     out.println(bodyHtml);
-    out.println("</body>");
+    out.println(" </body>");
     out.println("</html>");
   }
   public static int makePostRequest(String url) throws Exception  {
