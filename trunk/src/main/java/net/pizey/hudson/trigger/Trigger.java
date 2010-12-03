@@ -35,12 +35,7 @@ public class Trigger extends HttpServlet {
   @Override
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
-    Properties p;
-    try {
-      p = fromResource(this.getClass());
-    } catch (IOException e) {
-      throw new ServletException(e);
-    }
+    Properties p = fromResource(this.getClass());
     for (Object keyO : p.keySet()) {
       String key = (String) keyO;
       if (key.equals("user"))
@@ -143,16 +138,18 @@ public class Trigger extends HttpServlet {
   /**
    * Get a {@link Properties} object from a {@link Class}.
    */
-  public static Properties fromResource(Class<?> clazz)
-      throws IOException {
+  public static Properties fromResource(Class<?> clazz) throws ServletException {
     String name = clazz.getName() + ".properties";
     InputStream is = clazz.getResourceAsStream(name);
 
-    if (is == null)
-      throw new FileNotFoundException(name + ": is it in CLASSPATH?");
-
     Properties them = new Properties();
-    them.load(is);
+    try {
+      if (is == null)
+        throw new FileNotFoundException(name + ": is it in CLASSPATH?");
+      them.load(is); // this, too, might throw an IOException
+    } catch (IOException e) {
+      throw new ServletException(e);
+    }
 
     return them;
   }
