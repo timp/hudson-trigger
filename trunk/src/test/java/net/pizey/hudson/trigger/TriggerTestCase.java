@@ -1,6 +1,6 @@
 package net.pizey.hudson.trigger;
 
-import java.io.FileNotFoundException;
+import javax.servlet.ServletException;
 
 /**
  * @author timp
@@ -59,7 +59,7 @@ public class TriggerTestCase extends JettyWebTestCase {
     try {
       Trigger.fromResource(Object.class);
       fail("Should have bombed");
-    } catch (FileNotFoundException e) {
+    } catch (ServletException e) {
       e = null;
     }
   }
