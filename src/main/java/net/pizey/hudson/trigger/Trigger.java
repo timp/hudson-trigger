@@ -19,8 +19,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
 
-
 /**
+ * A servlet to trigger Hudson builds, having authorised them.
+ * 
  * @author timp
  * @since 28-11-2010
  */
@@ -29,14 +30,9 @@ public class Trigger extends HttpServlet {
   private static final long serialVersionUID = -2696656437199962046L;
   private static String user;
   private static String password;
-  private static HashMap<String, ArrayList<String>> tokenUrls = new HashMap<String, ArrayList<String>>(); 
+  private static HashMap<String, ArrayList<String>> tokenUrls = new HashMap<String, ArrayList<String>>();
 
-  /**
-   * Inititialise Melati.
-   *
-   * @param config a <code>ServletConfig</code>
-   * @throws ServletException is anything goes wrong
-   */
+  @Override
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
     Properties p;
@@ -46,62 +42,59 @@ public class Trigger extends HttpServlet {
       throw new ServletException(e);
     }
     for (Object keyO : p.keySet()) {
-      String key = (String)keyO;
+      String key = (String) keyO;
       if (key.equals("user"))
         user = p.getProperty("user");
       else if (key.equals("password"))
         password = p.getProperty("password");
-      else { 
-        String urlList = (String)p.get(key);
+      else {
+        String urlList = (String) p.get(key);
         ArrayList<String> urls = new ArrayList<String>();
-        String[] split = urlList.split(","); 
-        for (int i = 0; i<split.length; i++) { 
+        String[] split = urlList.split(",");
+        for (int i = 0; i < split.length; i++) {
           urls.add(split[i]);
-        } 
-        tokenUrls.put(key,urls);
+        }
+        tokenUrls.put(key, urls);
       }
     }
   }
 
+  @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
     resp.setContentType("text/html");
     PrintWriter out = resp.getWriter();
     String token = req.getParameter("token");
     String form = "<form method='POST'>" +
-    		          "<input type='text' name='token' value='" + token + "'>" +
-    		          "<input type='submit'>" +
+                  "<input type='text' name='token' value='" + token + "'>" +
+                  "<input type='submit'>" +
                   "</form>";
     printAsPage(out, "Trigger", form);
   }
 
-  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-      throws ServletException, IOException {
-    try {
-      String token = req.getParameter("token");
-      resp.setContentType("text/html");
-      PrintWriter out = resp.getWriter();
-      ArrayList<String> urls = tokenUrls.get(token);
-      String bodyHtml = "<table>";
-      if (urls == null) {
-        System.err.println("Trigger: No build targets found for " + token);
-        bodyHtml += "<tr><td>0</td><td>No build targets found</td></tr>";
-      } else {
-        for (String url : urls) {
-          url = appendToken(url, token);
-          int responseStatus = makePostRequest(url);
-          bodyHtml += "<tr><td>" + responseStatus + "</td><td>" + url + "</td></tr>";
-        }
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    String token = req.getParameter("token");
+    resp.setContentType("text/html");
+    PrintWriter out = resp.getWriter();
+    ArrayList<String> urls = tokenUrls.get(token);
+    String bodyHtml = "<table>";
+    if (urls == null) {
+      System.err.println("Trigger: No build targets found for " + token);
+      bodyHtml += "<tr><td>0</td><td>No build targets found</td></tr>";
+    } else {
+      for (String url : urls) {
+        url = appendToken(url, token);
+        int responseStatus = makePostRequest(url);
+        bodyHtml += "<tr><td>" + responseStatus + "</td><td>" + url + "</td></tr>";
       }
-      bodyHtml += "</table>";
-      printAsPage(out, "Triggered", bodyHtml);
-    } catch(Exception e){
-      throw new ServletException(e);
     }
+    bodyHtml += "</table>";
+    printAsPage(out, "Triggered", bodyHtml);
   }
 
   private String appendToken(String url, String token) {
-    String newUrl = url + (url.indexOf('?') > -1 ? "&" : "?") + "token=" + token;   
+    String newUrl = url + (url.indexOf('?') > -1 ? "&" : "?") + "token=" + token;
     return newUrl;
   }
 
@@ -114,44 +107,41 @@ public class Trigger extends HttpServlet {
     out.println(" </head>");
     out.println(" <body>");
     out.println("<h1>" + title + "</h1>");
-    
+
     out.println(bodyHtml);
     out.println(" </body>");
     out.println("</html>");
   }
-  public static int makePostRequest(String url) throws Exception  {
+
+  public static int makePostRequest(String url) throws IOException {
     System.err.println(url);
     HttpURLConnection connection = getConnection(url);
-    
+
     authorize(connection, user, password);
     connection.setRequestMethod("POST");
     connection.setDoOutput(true);
 
     return connection.getResponseCode();
-} 
-  protected static HttpURLConnection getConnection(String url) throws Exception {
-    HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+  }
+
+  protected static HttpURLConnection getConnection(String url) throws IOException {
+    URL u = new URL(url);
+    HttpURLConnection connection = (HttpURLConnection) u.openConnection();
     connection.addRequestProperty("Accept", "text/plain *; q=.2, */*; q=.2");
     return connection;
   }
 
   private static void authorize(HttpURLConnection connection, String username,
       String password) {
-    String encodedAuthorisationValue = 
-      StringUtils.newStringUtf8(
-          new Base64().encode((username + ":" + password).getBytes())).replaceAll("\n", "");
+    String encodedAuthorisationValue =
+        StringUtils.newStringUtf8(
+            new Base64().encode((username + ":" + password).getBytes())).replaceAll("\n", "");
     connection.setRequestProperty("Authorization", "Basic "
         + encodedAuthorisationValue);
   }
-  
+
   /**
    * Get a {@link Properties} object from a {@link Class}.
-   * 
-   * 
-   * @param clazz the {@link Class} to look up
-   * @param name the property file name
-   * @return a {@link Properties} object
-   * @throws IOException if the file cannot load or is not found
    */
   public static Properties fromResource(Class<?> clazz, String name)
       throws IOException {
@@ -161,11 +151,7 @@ public class Trigger extends HttpServlet {
       throw new FileNotFoundException(name + ": is it in CLASSPATH?");
 
     Properties them = new Properties();
-    try {
-      them.load(is);
-    } catch (IOException e) {
-      throw new IOException("Corrupt properties file `" + name + "'", e);
-    }
+    them.load(is);
 
     return them;
   }
