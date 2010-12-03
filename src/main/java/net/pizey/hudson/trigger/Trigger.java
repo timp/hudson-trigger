@@ -37,7 +37,7 @@ public class Trigger extends HttpServlet {
     super.init(config);
     Properties p;
     try {
-      p = fromResource(this.getClass(), this.getClass().getName() + ".properties");
+      p = fromResource(this.getClass());
     } catch (IOException e) {
       throw new ServletException(e);
     }
@@ -143,8 +143,9 @@ public class Trigger extends HttpServlet {
   /**
    * Get a {@link Properties} object from a {@link Class}.
    */
-  public static Properties fromResource(Class<?> clazz, String name)
+  public static Properties fromResource(Class<?> clazz)
       throws IOException {
+    String name = clazz.getName() + ".properties";
     InputStream is = clazz.getResourceAsStream(name);
 
     if (is == null)
