@@ -9,7 +9,7 @@
   <description>
   A build trigger for Hudson.
   
-  Build with mvn install -Plive -Duser=foo -passord=bar 
+  Build with mvn install -Plive -Duser=foo -password=bar 
   </description>
   <url>http://maven.apache.org</url>
   <repositories>
